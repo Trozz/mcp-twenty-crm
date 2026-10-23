@@ -1,0 +1,25 @@
+[package]
+name = "mcp-twenty-crm-records"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+mcp-server-core.workspace = true
+thiserror.workspace = true
+url.workspace = true
+tracing.workspace = true
+reqwest.workspace = true
+metrics.workspace = true
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+rmcp.workspace = true
+axum.workspace = true
+
+[dev-dependencies]
+tower.workspace = true
+http-body-util.workspace = true
+tokio-util.workspace = true
