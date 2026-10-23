@@ -1,0 +1,16 @@
+[package]
+name = "mcp-twenty-crm"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+mcp-server-core.workspace = true
+mcp-twenty-crm-records = { path = "../mcp-twenty-crm-records" }
+tokio.workspace = true
+
+[dev-dependencies]
+tracing.workspace = true
+tracing-subscriber.workspace = true
