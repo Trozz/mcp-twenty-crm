@@ -83,7 +83,10 @@ cargo test --workspace
 cargo clippy --workspace --all-targets -- -D warnings
 cargo fmt --all --check
 cargo deny check
+bash scripts/test-next-version.sh
 ```
+
+Releases: merging into `develop` publishes a pre-release (`ghcr.io/trozz/mcp-twenty-crm:develop`); merging `develop` into `main` publishes a release with `X.Y.Z`, `X.Y`, `X` and `latest` image tags and binaries. The bump comes from a `major`, `minor` or `patch` label on the PR, or `[major]`/`[minor]`/`[patch]` in its title (default patch).
 
 The tests run against an in-memory fake of the Twenty REST API (`crates/mcp-twenty-crm-records/tests/support/fake_twenty.rs`), including end-to-end MCP sessions through the OAuth and bearer guards.
 

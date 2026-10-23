@@ -86,3 +86,67 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+
+  scripts:
+    name: scripts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - run: shellcheck scripts/*.sh
+      - run: bash scripts/test-next-version.sh
+      - name: source-branch check self-test
+        run: |
+          HEAD_REF=develop HEAD_REPO=a/b BASE_REPO=a/b bash scripts/check-source-branch.sh
+          if HEAD_REF=develop HEAD_REPO=fork/b BASE_REPO=a/b bash scripts/check-source-branch.sh; then
+            echo "fork PR was accepted"; exit 1
+          fi
+
+  source-branch:
+    name: source-branch
+    if: github.base_ref == 'main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - env:
+          HEAD_REF: ${{ github.head_ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          BASE_REPO: ${{ github.repository }}
+        run: bash scripts/check-source-branch.sh
+
+  release-preview:
+    name: release-preview
+    if: github.base_ref == 'main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          fetch-tags: true
+      - id: v
+        env:
+          BRANCH: main
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: bash scripts/next-version.sh
+      - run: |
+          {
+            echo "### Release preview"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Bump | \`${{ steps.v.outputs.bump }}\` |"
+            echo "| Version | \`${{ steps.v.outputs.version }}\` |"
+            echo "| Tag | \`${{ steps.v.outputs.tag }}\` |"
+            echo "| Will release | \`${{ steps.v.outputs.release }}\` |"
+            echo "| Previous | \`${{ steps.v.outputs.previous }}\` |"
+            echo ""
+            echo "Change the bump with a \`major\`, \`minor\` or \`patch\` label, or \`[major]\` / \`[minor]\` in the title."
+          } >> "$GITHUB_STEP_SUMMARY"
